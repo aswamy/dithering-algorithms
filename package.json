@@ -1,0 +1,14 @@
+{
+  "name": "dithering-algorithms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "floyd-steinberg": "node floyd-steinberg-dithering.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^0.14.0"
+  }
+}
