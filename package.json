@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "floyd-steinberg": "node floyd-steinberg-dithering.js"
+    "floyd-steinberg": "node floyd-steinberg-dithering.js",
+    "ordered": "node ordered-dithering.js"
   },
   "author": "",
   "license": "ISC",
