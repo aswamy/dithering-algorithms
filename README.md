@@ -24,3 +24,7 @@ Linux: `INPUT_FILE_PATH={your path to the original image}`
 #### Ordered Algorithm
 
 `npm run ordered`
+
+#### Halftone Algorithm
+
+`npm run halftone`
