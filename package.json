@@ -6,7 +6,8 @@
   "scripts": {
     "floyd-steinberg": "node floyd-steinberg-dithering.js",
     "ordered": "node ordered-dithering.js",
-    "halftone": "node halftone.js"
+    "halftone": "node halftone.js",
+    "lowres": "node lowres.js"
   },
   "author": "",
   "license": "ISC",

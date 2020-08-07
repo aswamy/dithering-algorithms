@@ -28,3 +28,10 @@ Linux: `INPUT_FILE_PATH={your path to the original image}`
 #### Halftone Algorithm
 
 `npm run halftone`
+
+#### Low Resolution
+
+NOTE: This isn't an official Dithering algorithm - I just wanted to have a way of averaging
+the color of a matrix of pixels to create a low-res picture for art
+
+`npm run lowres`
