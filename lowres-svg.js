@@ -1,16 +1,18 @@
 /**
  * Low Resolution Algorithm
- * 
  * Averages out the pixel colors in an nxn matrix
+ * 
+ * Output an array of circles for A E S T H E T I C purposes :D
  * 
  * @author Alok Swamy
  */
 const Jimp = require('jimp');
+const fsPromises = require('fs').promises;
 
 /*
 * size of window of pixels to apply average
 */
-const COMPARISON_MATRIX_SIZE = 10;
+const COMPARISON_MATRIX_SIZE = 30;
 
 /*
 * Main code starts here
@@ -23,7 +25,6 @@ async function main() {
   }
 
   const file = Jimp.read(process.env.INPUT_FILE_PATH);
-
   const image = (await file);
 
   const imageMatrix = Array.from(Array(image.bitmap.height), () => new Array(image.bitmap.width));
@@ -36,13 +37,23 @@ async function main() {
     }
   }
 
+  const svgFile = await fsPromises.open(`output-${Date.now()}.html`, 'w');
+  const svgMatrix = Array.from(Array(Math.ceil(imageMatrix.length / COMPARISON_MATRIX_SIZE)), () => new Array(Math.ceil(imageMatrix[0].length / COMPARISON_MATRIX_SIZE)));
+
+  await svgFile.write(`
+    <!DOCTYPE html>
+    <html>
+    <body>
+    <svg width="${svgMatrix[0].length * 10}" height="${svgMatrix.length * 10}">
+  `);
+
   for(let y = 0; y < image.bitmap.height; y+=COMPARISON_MATRIX_SIZE) {
     for(let x = 0; x < image.bitmap.width; x+=COMPARISON_MATRIX_SIZE) {
       
       let imageMatrixSum = { r: 0, g: 0, b: 0 };
       let cellCount = 0;
 
-      // Go through every cell in the chosen window (COMPARISON_MATRIX_SIZE x COMPARISON_MATRIX_SIZE) and average the RGB values
+      // Find out the grayscale intensity of the cells in the matrix
       for(let comparisonMatrixY = 0; comparisonMatrixY < COMPARISON_MATRIX_SIZE; comparisonMatrixY++) {
         for(let comparisonMatrixX = 0; comparisonMatrixX < COMPARISON_MATRIX_SIZE; comparisonMatrixX++) {
           
@@ -65,39 +76,28 @@ async function main() {
         }
       }
       
-      // Fill the cells in the matrix with the average RGB value
-      for(let comparisonMatrixY = 0; comparisonMatrixY < COMPARISON_MATRIX_SIZE; comparisonMatrixY++) {
-        for(let comparisonMatrixX = 0; comparisonMatrixX < COMPARISON_MATRIX_SIZE; comparisonMatrixX++) {
-          
-          let indexX = comparisonMatrixX + x;
-          let indexY = comparisonMatrixY + y;
-
-          if(indexX >= imageMatrix[0].length || indexY >= imageMatrix.length) {
-            continue;
-          }
-
-          imageMatrix[indexY][indexX] = {
-            r: Math.round(imageMatrixSum.r / cellCount),
-            g: Math.round(imageMatrixSum.g / cellCount),
-            b: Math.round(imageMatrixSum.b / cellCount),
-          }
-        }
-      }
+      svgMatrix[y/COMPARISON_MATRIX_SIZE][x/COMPARISON_MATRIX_SIZE] = {
+        r: Math.round(imageMatrixSum.r / cellCount),
+        g: Math.round(imageMatrixSum.g / cellCount),
+        b: Math.round(imageMatrixSum.b / cellCount),
+      };
     }
   }
 
-  exportAsImage(image, imageMatrix);
-}
-
-async function exportAsImage(jimpImage, pixelMatrix) {
-  // Set the values from 2D array to image object
-  for(let y = 0; y < jimpImage.bitmap.height; y++) {
-    for(let x = 0; x < jimpImage.bitmap.width; x++) {
-      jimpImage.setPixelColor(Jimp.rgbaToInt(pixelMatrix[y][x].r, pixelMatrix[y][x].g, pixelMatrix[y][x].b, 255), x, y);
+  for(let y = 0; y < svgMatrix.length; y++) {
+    for(let x = 0; x < svgMatrix[0].length; x++) {
+      await svgFile.write(`<circle cx="${5 + 10*x}" cy="${5 + 10*y}" r="4" fill="rgb(${svgMatrix[y][x].r}, ${svgMatrix[y][x].g}, ${svgMatrix[y][x].b})" />\n`);
     }
   }
 
-  await jimpImage.write(`output-${Date.now()}.${jimpImage.getExtension()}`);
+  await svgFile.write(`
+    </svg>
+    </body>
+    </html>
+  `);
+
+  await svgFile.close();
 }
+
 
 main();
